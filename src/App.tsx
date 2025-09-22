@@ -7,18 +7,18 @@ import type {
   WheelEvent
 } from 'react';
 
-const blockPointer = (event: PointerEvent<HTMLDivElement>) => {
+const blockPointer = (event: PointerEvent<HTMLElement>) => {
   event.stopPropagation();
 };
 
-const blockTouch = (event: TouchEvent<HTMLDivElement>) => {
+const blockTouch = (event: TouchEvent<HTMLElement>) => {
   if (event.cancelable) {
     event.preventDefault();
   }
   event.stopPropagation();
 };
 
-const blockWheel = (event: WheelEvent<HTMLDivElement>) => {
+const blockWheel = (event: WheelEvent<HTMLElement>) => {
   if (event.cancelable) {
     event.preventDefault();
   }
