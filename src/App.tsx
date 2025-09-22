@@ -1,7 +1,25 @@
 import DeckGlobe from '@/dfl/globe/DeckGlobe';
 import { BASEMAPS, useBasemapStore } from '@/dfl/state/useUiStore';
+import type {
+  PointerEventHandler,
+  TouchEventHandler,
+  WheelEventHandler,
+} from 'react';
 
 export default function App() {
+  const handlePointerCapture: PointerEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+  };
+
+  const handleTouchCapture: TouchEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+  };
+
+  const handleWheelCapture: WheelEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
   return (
     <div className="h-screen w-screen relative">
       <DeckGlobe />
@@ -11,6 +29,12 @@ export default function App() {
         className="absolute top-4 left-4 z-20 pointer-events-auto space-y-2
                    rounded-xl border border-white/10 bg-white/10 p-3 text-sm backdrop-blur"
         style={{ cursor: 'default' }}
+        onPointerDownCapture={handlePointerCapture}
+        onPointerUpCapture={handlePointerCapture}
+        onPointerMoveCapture={handlePointerCapture}
+        onTouchStartCapture={handleTouchCapture}
+        onTouchEndCapture={handleTouchCapture}
+        onWheelCapture={handleWheelCapture}
       >
         <div className="font-semibold">Drone Globe (deck.gl)</div>
         <div className="text-white/70">Drag to rotate • Scroll to zoom • Shift+drag to pan</div>
