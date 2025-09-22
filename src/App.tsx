@@ -26,6 +26,19 @@ const blockWheel = (event: WheelEvent<HTMLElement>) => {
 };
 
 export default function App() {
+  const handlePointerCapture: PointerEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+  };
+
+  const handleTouchCapture: TouchEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+  };
+
+  const handleWheelCapture: WheelEventHandler<HTMLDivElement> = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-black text-white">
       <DeckGlobe />
