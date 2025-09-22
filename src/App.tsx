@@ -1,25 +1,75 @@
 import DeckGlobe from '@/dfl/globe/DeckGlobe';
 import { BASEMAPS, useBasemapStore } from '@/dfl/state/useUiStore';
+import type { BasemapId } from '@/dfl/state/useUiStore';
+import type {
+  PointerEvent,
+  TouchEvent,
+  WheelEvent
+} from 'react';
+
+const blockPointer = (event: PointerEvent<HTMLElement>) => {
+  event.stopPropagation();
+};
+
+const blockTouch = (event: TouchEvent<HTMLElement>) => {
+  if (event.cancelable) {
+    event.preventDefault();
+  }
+  event.stopPropagation();
+};
+
+const blockWheel = (event: WheelEvent<HTMLElement>) => {
+  if (event.cancelable) {
+    event.preventDefault();
+  }
+  event.stopPropagation();
+};
 
 export default function App() {
   return (
-    <div className="h-screen w-screen relative">
+    <div className="relative h-screen w-screen overflow-hidden bg-black text-white">
       <DeckGlobe />
+      <UiOverlay />
+    </div>
+  );
+}
 
-      {/* ↑ UI overlay sits above the globe */}
-      <div
-        className="absolute top-4 left-4 z-20 pointer-events-auto space-y-2
-                   rounded-xl border border-white/10 bg-white/10 p-3 text-sm backdrop-blur"
-        style={{ cursor: 'default' }}
-      >
-        <div className="font-semibold">Drone Globe (deck.gl)</div>
-        <div className="text-white/70">Drag to rotate • Scroll to zoom • Shift+drag to pan</div>
-        <BasemapSelect />
+function UiOverlay() {
+  return (
+    <>
+      <div className="pointer-events-none absolute inset-0 flex flex-col">
+        <div className="pointer-events-auto p-6">
+          <ControlPanel />
+        </div>
+        <div className="pointer-events-auto mt-auto p-4">
+          <Attribution />
+        </div>
       </div>
+    </>
+  );
+}
 
-      {/* Attribution footer above globe too */}
-      <div className="absolute bottom-2 left-2 z-20 pointer-events-auto">
-        <Attribution />
+function ControlPanel() {
+  return (
+    <div
+      className="max-w-xs rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur"
+      onPointerDownCapture={blockPointer}
+      onPointerMoveCapture={blockPointer}
+      onPointerUpCapture={blockPointer}
+      onTouchStartCapture={blockTouch}
+      onTouchMoveCapture={blockTouch}
+      onTouchEndCapture={blockTouch}
+      onWheelCapture={blockWheel}
+    >
+      <div className="space-y-3">
+        <header className="space-y-1">
+          <h1 className="text-lg font-semibold text-white">Drone Flight Lab</h1>
+          <p className="text-xs text-white/70">
+            Explore the interactive globe, drag to rotate, scroll or pinch to zoom, and shift-drag to
+            pan.
+          </p>
+        </header>
+        <BasemapSelect />
       </div>
     </div>
   );
@@ -27,17 +77,23 @@ export default function App() {
 
 function BasemapSelect() {
   const { id, setId } = useBasemapStore();
+
   return (
-    <label className="flex items-center gap-2">
-      <span>Basemap:</span>
+    <label className="flex flex-col gap-2 text-sm">
+      <span className="font-medium text-white/80">Basemap</span>
       <select
-        className="bg-black/40 border border-white/20 rounded px-2 py-1"
+        className="rounded-lg border border-white/20 bg-black/40 px-3 py-2 text-white shadow-inner"
         value={id}
-        onChange={(e) => setId(e.target.value as any)}
+        onChange={(event) => setId(event.target.value as BasemapId)}
+        onPointerDownCapture={blockPointer}
+        onPointerUpCapture={blockPointer}
+        onTouchStartCapture={blockTouch}
+        onTouchEndCapture={blockTouch}
+        onWheelCapture={blockWheel}
       >
-        {BASEMAPS.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.name}
+        {BASEMAPS.map((basemap) => (
+          <option key={basemap.id} value={basemap.id} className="bg-slate-900 text-white">
+            {basemap.name}
           </option>
         ))}
       </select>
@@ -47,10 +103,11 @@ function BasemapSelect() {
 
 function Attribution() {
   const { id } = useBasemapStore();
-  const meta = BASEMAPS.find((b) => b.id === id);
+  const basemap = BASEMAPS.find((candidate) => candidate.id === id) ?? BASEMAPS[0];
+
   return (
-    <div className="rounded bg-black/40 px-2 py-1 text-[11px] text-white/70">
-      {meta?.attribution}
+    <div className="w-fit rounded-full border border-white/10 bg-black/60 px-3 py-1 text-[11px] text-white/70">
+      {basemap.attribution}
     </div>
   );
 }
